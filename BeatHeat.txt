@@ -1,0 +1,17 @@
+BEATHEAT
+
+BeatHeat is a web app that:
+	takes in queries (submitted via browser or API), 
+	searches youtube for the popularity of these queries (when compared to the previous quarter), 
+	and returns HOT or NOT and the percent change (returned via browser or API).
+
+Sprint 1 is deploying a new Laravel web app.
+
+Sprint 2 is hitting the YouTube API with a query.
+
+Sprint 3 is processing the returned data.
+
+Sprint 4 is returning the data to a webpage.
+
+Sprint 5 is receiving the data from a webpage.
+
