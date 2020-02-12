@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,22 +17,29 @@ Route::get('/', function () {
   return view('beatheat', ['answer' => $answer]);
 });
 
-Route::get('/query', function () {
+Route::post('/query', function (Request $request) {
 
-  $urlBase = "https://www.googleapis.com/youtube/v3/videos";
-  $url = "";
+  $input_query = $request->input('query', 'default_search_term');
 
-  $request = new HttpRequest(url, HttpRequest::METH_GET);
+// $urlbase = "https://www.googleapis.com/youtube/v3/videos";
+// $query = "?"
+// $key = "?key=AIzaSyDRMdYvc2jL8FWkZ8zDbb5N2EPL5jYaGaY";
+// $url = $urlbase + $query + $key;
+//
+// $json = file_get_contents($url);
+// $dump = var_dump(json_decode($json));
 
-  try {
-    $request->send();
-    if ($request->getResponseCode() == 200) {
-      file_put_contents('local.rss', $r->getResponseBody());
-    }
-  } catch (HttpException $e) {
-      echo $e;
-  }
+// $request = new HttpRequest($url, HttpRequest::METH_GET);
+//
+// try {
+//   $request->send();
+//   if ($request->getResponseCode() == 200) {
+//     file_put_contents('local.rss', $r->getResponseBody());
+//   }
+// } catch (HttpException $e) {
+//     echo $e;
+// }
 
-    // $answer = ;
-    return view('beatheat', ['answer' => $answer]);
+// $answer = ;
+  return view('beatheat', ['answer' => $input_query]);
 });
