@@ -24,6 +24,11 @@ Route::post('/query', function (Request $request) {
 
   $q_lower = strtolower($input_query); // Query to lowercase
   $q_alphanum = preg_replace("/[^A-Za-z0-9 ]/", '', $q_lower); // Alphanum only
+
+  if (strlen($q_alphanum) < 1) {
+    return view('beatheat', ['answer' => 'Not enough videos found. Try again.']);
+  }
+
   $q_enc = urlencode($q_alphanum);
 
   // Only select for videos from past 3 months
@@ -74,7 +79,21 @@ Route::post('/query', function (Request $request) {
   for ($i = 0; $i < 5; $i++) {
     $map[$video_ids[$i]] = $viewcounts[$i];
   }
-  var_dump($map);
 
-  return view('beatheat', ['answer' => 'ans']);
+  $sum = 0;
+  for ($i = 0; $i < 5; $i++) {
+    $sum += $viewcounts[$i];
+  }
+  $ans = number_format($sum);
+
+  $final_ans = "";
+  if ($sum > 50000000) {
+    $final_ans = $ans . " ... That's heat!";
+  } elseif ($sum > 1000000) {
+    $final_ans = $ans . " ... That's warm!";
+  } else {
+    $final_ans = $ans . " ... That's cold!";
+  }
+
+  return view('beatheat', ['answer' => $final_ans]);
 });
