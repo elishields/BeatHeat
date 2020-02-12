@@ -10,7 +10,7 @@
 
 **Sprints**:
 	
-	1. Deploy a new Laravel web app.
+	1. Spin up a new Laravel web app.
 	
 	2. Hit the YouTube API with a query.
 	
@@ -23,3 +23,7 @@
 	6. Receive the data into an API.
 	
 	7. Return the data to an API.
+
+	8. Deploy the app.
+
+
