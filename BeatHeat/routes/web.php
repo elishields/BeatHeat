@@ -26,15 +26,18 @@ Route::post('/query', function (Request $request) {
   $q_alphanum = preg_replace("/[^A-Za-z0-9 ]/", '', $q_lower); // Alphanum only
 
   $urlbase = "https://www.googleapis.com/youtube/v3/videos";
-  $part   = "?" + "part=" + "";
-  $query  = "....." + $input_query;
-  $chart  = "&" + "chart=mostPopular";
-  $region = "&" + "regionCode=US";
-  $key    = "&" + "key=AIzaSyDRMdYvc2jL8FWkZ8zDbb5N2EPL5jYaGaY";
-  $url    = $urlbase + $part + $query + $chart + $region + $key;
+  $part   = "?" . "part=" . "statistics";
+  $query  = "&" . "q=" . $input_query;
+  $chart  = "&" . "chart=mostPopular";
+  $region = "&" . "regionCode=US";
+  $key    = "&" . "key=AIzaSyDRMdYvc2jL8FWkZ8zDbb5N2EPL5jYaGaY";
+  $url    = $urlbase . $part . $query . $chart . $region . $key;
+  $url_enc = urlencode($url);
 
-  $json = file_get_contents($url);
-  $dump = var_dump(json_decode($json));
+  // $json = file_get_contents($url);
+  // $data = json_decode($json, true);
+  // $dump = var_dump($data);
+  // $data2 = $json[0][0];
 
 // $request = new HttpRequest($url, HttpRequest::METH_GET);
 //
@@ -48,5 +51,5 @@ Route::post('/query', function (Request $request) {
 // }
 
 // $answer = ;
-  return view('beatheat', ['answer' => $dump]);
+  return view('beatheat', ['answer' => 't']);
 });
