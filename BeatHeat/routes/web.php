@@ -14,3 +14,9 @@
 Route::get('/', function () {
     return view('beatheat');
 });
+
+Route::get('/query', function () {
+
+    $answer = ;
+    return view('beatheat', ['answer' => $answer]);
+});

@@ -61,6 +61,12 @@
             .m-b-md {
                 margin-bottom: 30px;
             }
+
+            #query {
+              color: #636b6f;
+              font-family: 'Nunito', sans-serif;
+            }
+
         </style>
     </head>
     <body>
@@ -86,11 +92,17 @@
 
                 <div>
                   <!-- <form action="/action_page.php"> -->
-                  <form action="">
+                  <form action="/query" method="POST">
                     <label for="query">Search a tag:</label>
-                    <input type="text" id="query" name="query"><br><br>
+                    <input type="text" id="query" name="query" placeholder=" Try 'Dre beat'"><br><br>
                     <input type="submit" value="Submit" class="links">
                   </form>
+                </div>
+
+                <div>
+                  <p id='answer'>
+                    {{ $answer }}
+                  </p>
                 </div>
 
             </div>
