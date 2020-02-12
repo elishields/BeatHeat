@@ -26,18 +26,28 @@ Route::post('/query', function (Request $request) {
   $q_alphanum = preg_replace("/[^A-Za-z0-9 ]/", '', $q_lower); // Alphanum only
   $q_enc = urlencode($q_alphanum);
 
+  // Only select for videos from past 3 months
+  $deadline_raw = strtotime("-3 months");
+  $deadline_date = date("Y-m-d\TH:i:s\Z", $deadline_raw);
+
   // Get top 5 videos by viewcount for query
   $url_base    = "https://www.googleapis.com/youtube/v3/search";
-  $part        = "?" . "part="       . "snippet";
-  $max_results = "&" . "maxResults=" . "5";
-  $order       = "&" . "order="      . "viewCount";
-  $type        = "&" . "type="       . "video";
-  $query       = "&" . "q="          . $q_enc;
-  $key         = "&" . "key="        . "AIzaSyDRMdYvc2jL8FWkZ8zDbb5N2EPL5jYaGaY";
+  $part        = "?" . "part="           . "snippet";
+  $max_results = "&" . "maxResults="     . "5";
+  $order       = "&" . "order="          . "viewCount";
+  $type        = "&" . "type="           . "video";
+  $pub_date    = "&" . "publishedAfter=" . urlencode($deadline_date);
+  $query       = "&" . "q="              . $q_enc;
+  $key         = "&" . "key="            . "AIzaSyDRMdYvc2jL8FWkZ8zDbb5N2EPL5jYaGaY";
 
   $url  = $url_base . $part . $max_results . $order . $type . $query . $key;
   $json = file_get_contents($url);
   $data = json_decode($json, true);
+
+  // Check if at least 5 related videos exist
+  if(count($data['items'], 0) < 5) {
+    return view('beatheat', ['answer' => 'Not enough videos found. Try again.']);
+  }
 
   $video_ids = [];
   $viewcounts = [];
