@@ -11,19 +11,18 @@
 **Sprints**:
 	
 	1. Spin up a new Laravel web app.
+
+	2. Receive the query from a webpage.
 	
-	2. Hit the YouTube API with a query.
+	3. Hit the YouTube API with the query.
 	
-	3. Process the returned data.
-	
-	4. Receive the data from a webpage.
+	4. Process the returned data.
 	
 	5. Return the data to a webpage.
 	
-	6. Receive the data into an API.
+	6. Receive the query into an API.
 	
 	7. Return the data to an API.
 
 	8. Deploy the app.
-
 
