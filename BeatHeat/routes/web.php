@@ -12,11 +12,26 @@
 */
 
 Route::get('/', function () {
-    return view('beatheat');
+  $answer = "";
+  return view('beatheat', ['answer' => $answer]);
 });
 
 Route::get('/query', function () {
 
-    $answer = ;
+  $urlBase = "https://www.googleapis.com/youtube/v3/videos";
+  $url = "";
+
+  $request = new HttpRequest(url, HttpRequest::METH_GET);
+
+  try {
+    $request->send();
+    if ($request->getResponseCode() == 200) {
+      file_put_contents('local.rss', $r->getResponseBody());
+    }
+  } catch (HttpException $e) {
+      echo $e;
+  }
+
+    // $answer = ;
     return view('beatheat', ['answer' => $answer]);
 });

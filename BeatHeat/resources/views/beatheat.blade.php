@@ -92,7 +92,7 @@
 
                 <div>
                   <!-- <form action="/action_page.php"> -->
-                  <form action="/query" method="POST">
+                  <form action="/query" method="GET">
                     <label for="query">Search a tag:</label>
                     <input type="text" id="query" name="query" placeholder=" Try 'Dre beat'"><br><br>
                     <input type="submit" value="Submit" class="links">
