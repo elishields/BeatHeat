@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -12,22 +11,30 @@ use Illuminate\Http\Request;
 |
 */
 
+use Illuminate\Http\Request;
+
 Route::get('/', function () {
-  $answer = "";
+  $answer = ""; // Nothing searched yet
   return view('beatheat', ['answer' => $answer]);
 });
 
 Route::post('/query', function (Request $request) {
 
-  $input_query = $request->input('query', 'default_search_term');
+  $input_query = $request->input('query', 'beats'); // Get query from POST form
 
-// $urlbase = "https://www.googleapis.com/youtube/v3/videos";
-// $query = "?"
-// $key = "?key=AIzaSyDRMdYvc2jL8FWkZ8zDbb5N2EPL5jYaGaY";
-// $url = $urlbase + $query + $key;
-//
-// $json = file_get_contents($url);
-// $dump = var_dump(json_decode($json));
+  $q_lower = strtolower($input_query); // Query to lowercase
+  $q_alphanum = preg_replace("/[^A-Za-z0-9 ]/", '', $q_lower); // Alphanum only
+
+  $urlbase = "https://www.googleapis.com/youtube/v3/videos";
+  $part   = "?" + "part=" + "";
+  $query  = "....." + $input_query;
+  $chart  = "&" + "chart=mostPopular";
+  $region = "&" + "regionCode=US";
+  $key    = "&" + "key=AIzaSyDRMdYvc2jL8FWkZ8zDbb5N2EPL5jYaGaY";
+  $url    = $urlbase + $part + $query + $chart + $region + $key;
+
+  $json = file_get_contents($url);
+  $dump = var_dump(json_decode($json));
 
 // $request = new HttpRequest($url, HttpRequest::METH_GET);
 //
@@ -41,5 +48,5 @@ Route::post('/query', function (Request $request) {
 // }
 
 // $answer = ;
-  return view('beatheat', ['answer' => $input_query]);
+  return view('beatheat', ['answer' => $dump]);
 });
