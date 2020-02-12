@@ -84,6 +84,15 @@
                     BeatHeat
                 </div>
 
+                <div>
+                  <!-- <form action="/action_page.php"> -->
+                  <form action="">
+                    <label for="query">Search a tag:</label>
+                    <input type="text" id="query" name="query"><br><br>
+                    <input type="submit" value="Submit">
+                  </form>
+                </div>
+
                 <div class="links">
                     <a href="https://laravel.com/docs">Docs</a>
                     <a href="https://laracasts.com">Laracasts</a>
