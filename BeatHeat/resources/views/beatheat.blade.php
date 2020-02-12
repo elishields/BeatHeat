@@ -90,6 +90,10 @@
                     BeatHeat
                 </div>
 
+                <p>
+                  Are recent YouTube videos with your tag getting views?</br></br>
+                </p>
+
                 <div>
                   <!-- <form action="/action_page.php"> -->
                   <form action="/query" method="POST">

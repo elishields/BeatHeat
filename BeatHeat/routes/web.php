@@ -24,32 +24,57 @@ Route::post('/query', function (Request $request) {
 
   $q_lower = strtolower($input_query); // Query to lowercase
   $q_alphanum = preg_replace("/[^A-Za-z0-9 ]/", '', $q_lower); // Alphanum only
+  $q_enc = urlencode($q_alphanum);
 
-  $urlbase = "https://www.googleapis.com/youtube/v3/videos";
-  $part   = "?" . "part=" . "statistics";
-  $query  = "&" . "q=" . $input_query;
-  $chart  = "&" . "chart=mostPopular";
-  $region = "&" . "regionCode=US";
-  $key    = "&" . "key=AIzaSyDRMdYvc2jL8FWkZ8zDbb5N2EPL5jYaGaY";
-  $url    = $urlbase . $part . $query . $chart . $region . $key;
-  $url_enc = urlencode($url);
+  // Only select for videos from past 3 months
+  $deadline_raw = strtotime("-3 months");
+  $deadline_date = date("Y-m-d\TH:i:s\Z", $deadline_raw);
 
-  // $json = file_get_contents($url);
-  // $data = json_decode($json, true);
-  // $dump = var_dump($data);
-  // $data2 = $json[0][0];
+  // Get top 5 videos by viewcount for query
+  $url_base    = "https://www.googleapis.com/youtube/v3/search";
+  $part        = "?" . "part="           . "snippet";
+  $max_results = "&" . "maxResults="     . "5";
+  $order       = "&" . "order="          . "viewCount";
+  $type        = "&" . "type="           . "video";
+  $pub_date    = "&" . "publishedAfter=" . urlencode($deadline_date);
+  $query       = "&" . "q="              . $q_enc;
+  $key         = "&" . "key="            . "AIzaSyDRMdYvc2jL8FWkZ8zDbb5N2EPL5jYaGaY";
 
-// $request = new HttpRequest($url, HttpRequest::METH_GET);
-//
-// try {
-//   $request->send();
-//   if ($request->getResponseCode() == 200) {
-//     file_put_contents('local.rss', $r->getResponseBody());
-//   }
-// } catch (HttpException $e) {
-//     echo $e;
-// }
+  $url  = $url_base . $part . $max_results . $order . $type . $query . $key;
+  $json = file_get_contents($url);
+  $data = json_decode($json, true);
 
-// $answer = ;
-  return view('beatheat', ['answer' => 't']);
+  // Check if at least 5 related videos exist
+  if(count($data['items'], 0) < 5) {
+    return view('beatheat', ['answer' => 'Not enough videos found. Try again.']);
+  }
+
+  $video_ids = [];
+  $viewcounts = [];
+
+  // Get video id's
+  for ($i = 0; $i < 5; $i++) {
+    $video_ids[$i] = $data['items'][$i]['id']['videoId'];
+  }
+
+  // Get viewcount's
+  for ($i = 0; $i < 5; $i++) {
+    $url_base = "https://www.googleapis.com/youtube/v3/videos";
+    $part     = "?" . "part=" . "statistics";
+    $id       = "&" . "id="   . $video_ids[$i];
+    $key      = "&" . "key="  . "AIzaSyDRMdYvc2jL8FWkZ8zDbb5N2EPL5jYaGaY";
+    $url      = $url_base . $part . $id . $key;
+
+    $json = file_get_contents($url);
+    $data = json_decode($json, true);
+    $viewcounts[$i] = $data['items'][0]['statistics']['viewCount'];
+  }
+
+  $map = [];
+  for ($i = 0; $i < 5; $i++) {
+    $map[$video_ids[$i]] = $viewcounts[$i];
+  }
+  var_dump($map);
+
+  return view('beatheat', ['answer' => 'ans']);
 });
