@@ -87,9 +87,9 @@ Route::post('/query', function (Request $request) {
   $ans = number_format($sum);
 
   $final_ans = "";
-  if ($sum > 50000000) {
+  if ($sum > 100000000) {
     $final_ans = $ans . " ... That's heat!";
-  } elseif ($sum > 1000000) {
+  } elseif ($sum > 10000000) {
     $final_ans = $ans . " ... That's warm!";
   } else {
     $final_ans = $ans . " ... That's cold!";
