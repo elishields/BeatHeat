@@ -2,11 +2,11 @@
 
 **BeatHeat** is a web app that:
 	
-	- receives queried terms (submitted via browser/API), 
+	- receives queried terms (submitted via browser), 
 	
-	- searches youtube for the popularity of these terms (when compared to the previous period), 
+	- searches youtube for the popularity of these terms (during past 3 months), 
 	
-	- and returns HOT or NOT with the percent change (returned via browser/API).
+	- and returns if the term is hot or not.
 
 **Sprints**:
 	
