@@ -13,7 +13,7 @@
 
 use Illuminate\Http\Request;
 
-include '../app/helpers.php';
+include '/BeatHeat/app/helpers.php';
 
 Route::get('/', function () {
   $answer = ""; // Nothing searched yet
