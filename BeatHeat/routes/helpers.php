@@ -75,7 +75,6 @@ function getViewCounts($ids) {
 
     $part     = "?" . "part=" . "statistics";
     $id       = "&" . "id="   . $ids[$i];
-    $key         = "&" . "key="
     $key      = "&" . "key="  . config('api,key');
     // $key      = "&" . "key="  . "AIzaSyDRMdYvc2jL8FWkZ8zDbb5N2EPL5jYaGaY";
 
