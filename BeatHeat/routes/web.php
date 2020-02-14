@@ -22,26 +22,29 @@ Route::get('/', function () {
 
 Route::post('/query', function (Request $request) {
 
-  // Exits script and returns notice to webpage if no results found
+  // Exits script and returns notice to webpage if < 5 results found
   $fail     = view('beatheat', ['answer' => "Not enough videos. Try again."]);
 
   // Begin processing the query
 
+  // Prepare query
   $query     = getQuery($request);
-  if (strlen($query) < 1) {
-    return $fail;
-  }
-  $date      = getDeadline();
+  if (strlen($query) < 1) { return $fail; }
+  $history   = getDeadline();
 
-  $ids_url   = videoIdUrl($query, $date);
+  // Hit YouTube API
+  $ids_url   = buildVideoIdUrl($query, $history);
   $ids_data  = callApi($ids_url);
+  if(sizeof($ids_data['items'], 0) < 5) { return $fail; }
   $ids       = getVideoIds($ids_data);
-
   $views     = getViewCounts($ids);
-  $sum       = sumViews($views);
-  $ans       = analyzeViews($sum);
 
-  return view('beatheat', ['answer' => $ans]);
+  // Process returned data
+  $sum       = sumViews($views);
+  $response  = analyzeViews($sum);
+
+  // Return data to view
+  return view('beatheat', ['answer' => $response]);
 });
 
 ?>

@@ -1,106 +1,100 @@
 <?php
 
-// Exits script and returns boilerplat to webpage if no results found
-function noResults() {
-  return view('beatheat', ['answer' => 'Not enough videos found. Try again.']);
-}
-
 // Returns cleaned and encoded search term query
-function getQuery($r) {
+function getQuery($request) {
   // Raw query from POSTed form
-  $query_raw = $r->input('query', ' ');
+  $query_raw = $request->input('query', ' ');
   // To lowercase
   $query_low = strtolower($query_raw);
   // Strip out non-alphanumeric characters
-  $query_alphanum = preg_replace("/[^A-Za-z0-9 ]/", '', $query_low); // Alphanum only
-  // Check length of query
-  if (strlen($query_alphanum) < 1) {
-    noResults();
-  }
-  // Encode for inclusion in URL
-  $q_enc = urlencode($query_alphanum);
+  $query_alphanum = preg_replace("/[^A-Za-z0-9 ]/", '', $query_low);
 
-  return($q_enc);
+  return($query_alphanum);
 }
 
 // Returns past date to limit search to
 function getDeadline() {
   // Limit search to past 3 months
-  $deadline_raw = strtotime("-3 months");
+  $history_raw = strtotime("-3 months");
   // YouTube API datetime format
-  $deadline_date = date("Y-m-d\TH:i:s\Z", $deadline_raw);
+  $history_fmt = date("Y-m-d\TH:i:s\Z", $history_raw);
   // Encode for inclusion in URL
-  $deadline_enc = urlencode($deadline_date);
+  $history_enc = urlencode($history_fmt);
 
-  return($deadline_enc);
+  return($history_enc);
 }
 
 // Returns URL for accessing the 5 most relevant videos
-function videoIdUrl($q, $d) {
+function buildVideoIdUrl($query, $history) {
   $url_base    = "https://www.googleapis.com/youtube/v3/search";
+
   $part        = "?" . "part="           . "snippet";
   $max_results = "&" . "maxResults="     . "5";
   $order       = "&" . "order="          . "viewCount";
   $type        = "&" . "type="           . "video";
-  $pub_date    = "&" . "publishedAfter=" . $d;
-  $query       = "&" . "q="              . $q;
+  $pub_date    = "&" . "publishedAfter=" . $history;
+  $query       = "&" . "q="              . $query;
   $key         = "&" . "key="            . "AIzaSyDRMdYvc2jL8FWkZ8zDbb5N2EPL5jYaGaY";
-  // Join url parts into whole
+
+  // Join url parts
   $url  = $url_base . $part . $max_results . $order . $type . $pub_date . $query . $key;
 
   return($url);
 }
 
 // Returns decoded data from API
-function callApi($u) {
+function callApi($url) {
   // Call API
-  $json = file_get_contents($u);
+  $json = file_get_contents($url);
   // Decode JSON
   $data = json_decode($json, true);
-  // Check if at least 5 related videos exist
-  var_dump($data);
-  if(sizeof($data['items'], 0) < 5) {
-    noResults();
-  }
 
   return($data);
 }
 
 // Returns id's of related videos
-function getVideoIds($d) {
-  $video_ids = [];
-  for ($i = 0; $i < sizeof($d['items']); $i++) {
-    $video_ids[$i] = $d['items'][$i]['id']['videoId'];
+function getVideoIds($ids_data) {
+  $ids = [];
+  for ($i = 0; $i < sizeof($ids_data['items']); $i++) {
+    $ids[$i] = $ids_data['items'][$i]['id']['videoId'];
   }
 
-  return($video_ids);
+  return($ids);
 }
 
 // Returns viewcounts of related videos
 function getViewCounts($ids) {
   $views = [];
+
   // Get viewcount's
   for ($i = 0; $i < sizeof($ids); $i++) {
     $url_base = "https://www.googleapis.com/youtube/v3/videos";
+
     $part     = "?" . "part=" . "statistics";
     $id       = "&" . "id="   . $ids[$i];
     $key      = "&" . "key="  . "AIzaSyDRMdYvc2jL8FWkZ8zDbb5N2EPL5jYaGaY";
-    // Join url parts into whole
+
+    // Join url parts
     $url      = $url_base . $part . $id . $key;
 
     // Get viewcount's
     $data = callApi($url);
-    $views[$i] = $data['items'][0]['statistics']['viewCount'];
+    $value = $data['items'][0]['statistics']['viewCount'];
+    if (is_numeric($value)) {
+      $views[$i] = $value;
+    } else {
+      $views[i] = 0;
+    }
   }
 
   return($views);
 }
 
 // Sums up total views of video results
-function sumViews($v) {
+function sumViews($views) {
   $sum = 0;
   for ($i = 0; $i < 5; $i++) {
-    $sum += $v[$i];
+    $sum += $views[$i];
   }
 
   return($sum);
@@ -109,17 +103,17 @@ function sumViews($v) {
 // Build an answer string to return to the view (webpage)
 function analyzeViews($sum) {
   $ans = number_format($sum);
-  $ans_final = "";
+  $response = "";
 
   if ($sum > 100000000) { // 100 million views
-    $ans_final = $ans . " views ... hot!";
+    $response = $ans . " views ... hot!";
   } elseif ($sum > 10000000) { // 10 million views
-    $ans_final = $ans . " views ... warmish ...";
+    $response = $ans . " views ... warmish ...";
   } else { // Less than 10 million views
-    $ans_final = $ans . " views ... cooold.";
+    $response = $ans . " views ... cooold.";
   }
 
-  return($ans_final);
+  return($response);
 }
 
 ?>
