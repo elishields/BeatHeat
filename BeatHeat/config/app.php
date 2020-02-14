@@ -3,7 +3,7 @@
 return [
 
     // YouTube API key
-    'api_key' => env('API_KEY', 'AIzaSyDRMdYvc2jL8FWkZ8zDbb5N2EPL5jYaGaY'),
+    'apikey' => env('apikey', 'AIzaSyDRMdYvc2jL8FWkZ8zDbb5N2EPL5jYaGaY'),
 
     /*
     |--------------------------------------------------------------------------
