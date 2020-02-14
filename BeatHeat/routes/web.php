@@ -21,9 +21,9 @@ Route::get('/', function () {
 Route::post('/query', function (Request $request) {
 
   // Returns cleaned and encoded search term query
-  function getQuery() {
+  function getQuery($r) {
     // Raw query from POSTed form
-    $query_raw = $request->input('query', 'beats');
+    $query_raw = $r->input('query', 'beats');
     // To lowercase
     $query_low = strtolower($query_raw);
     // Strip out non-alphanumeric characters
@@ -39,7 +39,7 @@ Route::post('/query', function (Request $request) {
   }
 
   // Returns past date to limit search to
-  function getDate() {
+  function getDeadline() {
     // Limit search to past 3 months
     $deadline_raw = strtotime("-3 months");
     // YouTube API datetime format
@@ -66,6 +66,11 @@ Route::post('/query', function (Request $request) {
     return($url);
   }
 
+  // Exits script and returns boilerplat to webpage if no results found
+  function noResults() {
+    return view('beatheat', ['answer' => 'Not enough videos found. Try again.']);
+  }
+
   // Returns decoded data from API
   function callApi($u) {
     // Call API
@@ -73,8 +78,8 @@ Route::post('/query', function (Request $request) {
     // Decode JSON
     $data = json_decode($json, true);
     // Check if at least 5 related videos exist
-    if(count($data['items'], 0) < 5) {
-      return view('beatheat', ['answer' => 'Not enough videos found. Try again.']);
+    if( (count($data['items'], 0) < 5) || $data['items'] == NULL) {
+      noResults();
     }
 
     return($data);
@@ -116,29 +121,30 @@ Route::post('/query', function (Request $request) {
     for ($i = 0; $i < 5; $i++) {
       $sum += $v[$i];
     }
-    $ans = number_format($sum);
 
-    return($ans);
+    return($sum);
   }
 
   // Build an answer string to return to the view (webpage)
-  function analyzeViews($ans) {
-    $final_ans = "";
+  function analyzeViews($sum) {
+    $ans = number_format($sum);
+    $ans_final = "";
+
     if ($sum > 100000000) {
-      $final_ans = $ans . " views ... hot!";
+      $ans_final = $ans . " views ... hot!";
     } elseif ($sum > 10000000) {
-      $final_ans = $ans . " views ... warmish ...";
+      $ans_final = $ans . " views ... warmish ...";
     } else {
-      $final_ans = $ans . " views ... cooold.";
+      $ans_final = $ans . " views ... cooold.";
     }
 
-    return($final_ans);
+    return($ans_final);
   }
 
   // Begin executing the functions
 
-  $query     = getQuery();
-  $date      = getDate();
+  $query     = getQuery($request);
+  $date      = getDeadline();
 
   $ids_url   = videoIdUrl($query, $date);
   $ids_data  = callApi($ids_url);
