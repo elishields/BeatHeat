@@ -37,7 +37,7 @@ function buildVideoIdUrl($query, $history) {
   $pub_date    = "&" . "publishedAfter=" . $history;
   $query       = "&" . "q="              . $query;
   // $key         = "&" . "key="            . "AIzaSyDRMdYvc2jL8FWkZ8zDbb5N2EPL5jYaGaY";
-  $key         = "&" . "key="            . config('api,key');
+  $key         = "&" . "key="            . config('api.key');
 
   // Join url parts
   $url  = $url_base . $part . $max_results . $order . $type . $pub_date . $query . $key;
@@ -75,7 +75,7 @@ function getViewCounts($ids) {
 
     $part     = "?" . "part=" . "statistics";
     $id       = "&" . "id="   . $ids[$i];
-    $key      = "&" . "key="  . config('api,key');
+    $key      = "&" . "key="  . config('api.key');
     // $key      = "&" . "key="  . "AIzaSyDRMdYvc2jL8FWkZ8zDbb5N2EPL5jYaGaY";
 
     // Join url parts
