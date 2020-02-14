@@ -10,7 +10,7 @@ function getQuery($request) {
   $query_alphanum = preg_replace("/[^A-Za-z0-9 ]/", '', $query_low);
   // Encode for HTTP
   $query_enc = urlencode($query_alphanum);
-  
+
   return($query_enc);
 }
 
