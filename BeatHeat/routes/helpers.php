@@ -74,7 +74,7 @@ function getViewCounts($ids) {
 
     $part     = "?" . "part=" . "statistics";
     $id       = "&" . "id="   . $ids[$i];
-    $key      = "&" . "key="  . config('api.key');
+    $key      = "&" . "key="  . config('app.apikey');
 
     // Join url parts
     $url      = $url_base . $part . $id . $key;
