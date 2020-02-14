@@ -20,80 +20,112 @@ Route::get('/', function () {
 
 Route::post('/query', function (Request $request) {
 
-  $input_query = $request->input('query', 'beats'); // Get query from POST form
+  function buildQuery() {
+    // Search query from POSTed form
+    $input_query = $request->input('query', 'beats');
 
-  $q_lower = strtolower($input_query); // Query to lowercase
-  $q_alphanum = preg_replace("/[^A-Za-z0-9 ]/", '', $q_lower); // Alphanum only
+    $q_lower = strtolower($input_query); // Query to lowercase
+    $q_alphanum = preg_replace("/[^A-Za-z0-9 ]/", '', $q_lower); // Alphanum only
 
-  if (strlen($q_alphanum) < 1) {
-    return view('beatheat', ['answer' => 'Not enough videos found. Try again.']);
+    if (strlen($q_alphanum) < 1) {
+      return view('beatheat', ['answer' => 'Not enough videos found. Try again.']);
+    }
+
+    $q_enc = urlencode($q_alphanum);
+
+    return($q_enc);
   }
 
-  $q_enc = urlencode($q_alphanum);
-
-  // Only select for videos from past 3 months
-  $deadline_raw = strtotime("-3 months");
-  $deadline_date = date("Y-m-d\TH:i:s\Z", $deadline_raw);
-
-  // Get top 5 videos by viewcount for query
-  $url_base    = "https://www.googleapis.com/youtube/v3/search";
-  $part        = "?" . "part="           . "snippet";
-  $max_results = "&" . "maxResults="     . "5";
-  $order       = "&" . "order="          . "viewCount";
-  $type        = "&" . "type="           . "video";
-  $pub_date    = "&" . "publishedAfter=" . urlencode($deadline_date);
-  $query       = "&" . "q="              . $q_enc;
-  $key         = "&" . "key="            . "AIzaSyDRMdYvc2jL8FWkZ8zDbb5N2EPL5jYaGaY";
-
-  $url  = $url_base . $part . $max_results . $order . $type . $query . $key;
-  $json = file_get_contents($url);
-  $data = json_decode($json, true);
-
-  // Check if at least 5 related videos exist
-  if(count($data['items'], 0) < 5) {
-    return view('beatheat', ['answer' => 'Not enough videos found. Try again.']);
+  function buildDate() {
+    // $input_deadline = $request->input('deadline', '3');
+    // Only select for videos from past 3 months
+    $deadline_raw = strtotime("-3 months");
+    $deadline_date = date("Y-m-d\TH:i:s\Z", $deadline_raw);
   }
 
-  $video_ids = [];
-  $viewcounts = [];
-
-  // Get video id's
-  for ($i = 0; $i < 5; $i++) {
-    $video_ids[$i] = $data['items'][$i]['id']['videoId'];
+  // Generates URL to hit YouTube API at for related video id's
+  function buildVideoIdUrl($q, $deadline_date) {
+    // Get top 5 videos by viewcount for query
+    $url_base    = "https://www.googleapis.com/youtube/v3/search";
+    $part        = "?" . "part="           . "snippet";
+    $max_results = "&" . "maxResults="     . "5";
+    $order       = "&" . "order="          . "viewCount";
+    $type        = "&" . "type="           . "video";
+    $pub_date    = "&" . "publishedAfter=" . urlencode($deadline_date);
+    $query       = "&" . "q="              . $q;
+    $key         = "&" . "key="            . "AIzaSyDRMdYvc2jL8FWkZ8zDbb5N2EPL5jYaGaY";
+    $url  = $url_base . $part . $max_results . $order . $type . $query . $key;
+    return($url);
   }
 
-  // Get viewcount's
-  for ($i = 0; $i < 5; $i++) {
-    $url_base = "https://www.googleapis.com/youtube/v3/videos";
-    $part     = "?" . "part=" . "statistics";
-    $id       = "&" . "id="   . $video_ids[$i];
-    $key      = "&" . "key="  . "AIzaSyDRMdYvc2jL8FWkZ8zDbb5N2EPL5jYaGaY";
-    $url      = $url_base . $part . $id . $key;
-
+  function callApi($u) {
     $json = file_get_contents($url);
     $data = json_decode($json, true);
-    $viewcounts[$i] = $data['items'][0]['statistics']['viewCount'];
+
+    // Check if at least 5 related videos exist
+    if(count($data['items'], 0) < 5) {
+      return view('beatheat', ['answer' => 'Not enough videos found. Try again.']);
+    }
+
+    return($data);
   }
 
-  $map = [];
-  for ($i = 0; $i < 5; $i++) {
-    $map[$video_ids[$i]] = $viewcounts[$i];
+  function getVideoIds($data) {
+    $video_ids = [];
+    // Get video id's
+    for ($i = 0; $i < 5; $i++) {
+      $video_ids[$i] = $data['items'][$i]['id']['videoId'];
+    }
+    return($video_ids);
   }
 
-  $sum = 0;
-  for ($i = 0; $i < 5; $i++) {
-    $sum += $viewcounts[$i];
-  }
-  $ans = number_format($sum);
+  function getViewCounts($video_ids) {
+    $viewcounts = [];
+    // Get viewcount's
+    for ($i = 0; $i < 5; $i++) {
+      $url_base = "https://www.googleapis.com/youtube/v3/videos";
+      $part     = "?" . "part=" . "statistics";
+      $id       = "&" . "id="   . $video_ids[$i];
+      $key      = "&" . "key="  . "AIzaSyDRMdYvc2jL8FWkZ8zDbb5N2EPL5jYaGaY";
+      $url      = $url_base . $part . $id . $key;
 
-  $final_ans = "";
-  if ($sum > 100000000) {
-    $final_ans = $ans . " ... That's heat!";
-  } elseif ($sum > 10000000) {
-    $final_ans = $ans . " ... That's warm!";
-  } else {
-    $final_ans = $ans . " ... That's cold!";
+      $data = callApi($url);
+      $viewcounts[$i] = $data['items'][0]['statistics']['viewCount'];
+    }
+    return($viewcounts);
   }
 
-  return view('beatheat', ['answer' => $final_ans]);
+  function sumViews($viewcounts) {
+    $sum = 0;
+    for ($i = 0; $i < 5; $i++) {
+      $sum += $viewcounts[$i];
+    }
+    $ans = number_format($sum);
+  }
+
+  function analyzeViews($ans) {
+    $final_ans = "";
+    if ($sum > 100000000) {
+      $final_ans = $ans . " views ... hot!";
+    } elseif ($sum > 10000000) {
+      $final_ans = $ans . " views ... warmish ...";
+    } else {
+      $final_ans = $ans . " views ... cooold.";
+    }
+
+    return($final_ans);
+  }
+
+  $query     = buildQuery();
+  $date      = buildDate();
+
+  $id_url    = buildVideoUrl($query, $date);
+  $id_data   = callApi($ids_url);
+  $ids       = getVideoIds($id_data);
+
+  $views     = getViewCounts($ids);
+  $sum       = sumViews($views);
+  $ans       = analyzeViews($sum);
+
+  return view('beatheat', ['answer' => $ans]);
 });
