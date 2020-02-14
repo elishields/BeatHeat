@@ -2,6 +2,9 @@
 
 return [
 
+    // YouTube API key
+    'apikey' => env('apikey', 'AIzaSyDRMdYvc2jL8FWkZ8zDbb5N2EPL5jYaGaY'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Name
