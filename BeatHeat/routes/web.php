@@ -20,6 +20,11 @@ Route::get('/', function () {
 
 Route::post('/query', function (Request $request) {
 
+  // Exits script and returns boilerplat to webpage if no results found
+  function noResults() {
+    return view('beatheat', ['answer' => 'Not enough videos found. Try again.']);
+  }
+
   // Returns cleaned and encoded search term query
   function getQuery($r) {
     // Raw query from POSTed form
@@ -30,7 +35,7 @@ Route::post('/query', function (Request $request) {
     $query_alphanum = preg_replace("/[^A-Za-z0-9 ]/", '', $query_low); // Alphanum only
     // Check length of query
     if (strlen($query_alphanum) < 1) {
-      return view('beatheat', ['answer' => 'Not enough videos found. Try again.']);
+      noResults();
     }
     // Encode for inclusion in URL
     $q_enc = urlencode($query_alphanum);
@@ -64,11 +69,6 @@ Route::post('/query', function (Request $request) {
     $url  = $url_base . $part . $max_results . $order . $type . $pub_date . $query . $key;
 
     return($url);
-  }
-
-  // Exits script and returns boilerplat to webpage if no results found
-  function noResults() {
-    return view('beatheat', ['answer' => 'Not enough videos found. Try again.']);
   }
 
   // Returns decoded data from API
