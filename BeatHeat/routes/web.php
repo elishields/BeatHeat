@@ -13,6 +13,7 @@
 
 use Illuminate\Http\Request;
 
+// Functions are defined here
 include_once 'helpers.php';
 
 Route::get('/', function () {
