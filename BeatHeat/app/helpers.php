@@ -8,8 +8,10 @@ function getQuery($request) {
   $query_low = strtolower($query_raw);
   // Strip out non-alphanumeric characters
   $query_alphanum = preg_replace("/[^A-Za-z0-9 ]/", '', $query_low);
-
-  return(urlencode($query_alphanum));
+  // Encode for HTTP
+  $query_enc = urlencode($query_alphanum);
+  
+  return($query_enc);
 }
 
 // Returns past date to limit search to
